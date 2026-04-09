@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KPI Flashcards — NXS & OLTRE Società Benefit</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#182430;--bg2:#1E2F3F;--card:#243342;--card2:#2A3D50;--nxs:#2E9E7A;--oltre:#E8B84B;--green:#4CAF82;--white:#FFFFFF;--light:#D5E5D8;--muted:#7A9A8A;--red:#E05555;--orange:#E8943A;--purple:#9B72CF;--blue:#4A8FD4;--gray:#6B7E8A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid #2a3d50;padding:12px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.logo{font-size:16px;font-weight:700;color:var(--green);white-space:nowrap;margin-right:8px}
+.logo span{color:var(--muted);font-weight:400;font-size:12px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;flex:1;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:200px;max-width:320px}
+.search-wrap input{width:100%;background:#1a2d3e;border:1px solid #3a5060;border-radius:8px;padding:7px 12px 7px 32px;color:var(--white);font-size:13px;outline:none}
+.search-wrap input::placeholder{color:var(--muted)}
+.search-wrap::before{content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px}
+.filter-group{display:flex;gap:4px;flex-wrap:wrap}
+.btn{border:none;cursor:pointer;border-radius:6px;font-size:12px;font-weight:600;padding:6px 12px;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-filter{background:#1a2d3e;color:var(--muted);border:1px solid #3a5060}
+.btn-filter:hover,.btn-filter.active{background:var(--green);color:var(--bg);border-color:var(--green)}
+.btn-filter.active-nxs{background:var(--nxs)!important;color:var(--white)!important;border-color:var(--nxs)!important}
+.btn-filter.active-oltre{background:var(--oltre)!important;color:var(--bg)!important;border-color:var(--oltre)!important}
+.btn-action{background:var(--card2);color:var(--light);border:1px solid #3a5060}
+.btn-action:hover{background:#354d62;color:var(--white)}
+.count-badge{background:var(--card2);border:1px solid #3a5060;border-radius:6px;padding:5px 12px;font-size:12px;color:var(--muted);white-space:nowrap}
+.count-badge strong{color:var(--white)}
+/* GRID */
+.grid-container{padding:20px;max-width:1400px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+/* CARDS */
+.card-wrap{perspective:1000px;height:260px;cursor:pointer}
+.card-wrap.hidden{display:none}
+.card-inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
+.card-wrap.flipped .card-inner{transform:rotateY(180deg)}
+.card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.card-front{background:var(--card);border:1px solid #2a3d50;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.card-back{background:var(--card2);border:1px solid #2a3d50;transform:rotateY(180deg);overflow-y:auto}
+/* Company accent bar */
+.card-front::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:12px 0 0 12px}
+.card-front.nxs::before{background:var(--nxs)}
+.card-front.oltre::before{background:var(--oltre)}
+/* Badges row */
+.badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.badge-nxs{background:rgba(46,158,122,.2);color:var(--nxs)}
+.badge-oltre{background:rgba(232,184,75,.2);color:var(--oltre)}
+.badge-output{background:rgba(74,143,212,.2);color:var(--blue)}
+.badge-outcome{background:rgba(46,158,122,.2);color:var(--nxs)}
+.badge-impact{background:rgba(155,114,207,.2);color:var(--purple)}
+.badge-governance{background:rgba(107,126,138,.2);color:var(--gray)}
+.badge-area{background:rgba(76,175,130,.15);color:var(--green)}
+/* Priority badges */
+.badge-alta{background:rgba(224,85,85,.2);color:var(--red)}
+.badge-media{background:rgba(232,148,58,.2);color:var(--orange)}
+.badge-bassa{background:rgba(107,126,138,.2);color:var(--gray)}
+/* KPI name */
+.kpi-name{font-size:15px;font-weight:700;color:var(--white);line-height:1.3;flex:1}
+.kpi-finalita{font-size:11px;color:var(--muted);margin-top:auto;border-top:1px solid #2a3d50;padding-top:8px;line-height:1.4}
+.kpi-finalita strong{color:var(--light)}
+/* Flip hint */
+.flip-hint{font-size:10px;color:var(--muted);text-align:center;display:flex;align-items:center;gap:4px;justify-content:center}
+/* BACK */
+.back-title{font-size:13px;font-weight:700;color:var(--white);padding-bottom:8px;border-bottom:1px solid #354d62}
+.back-row{display:flex;flex-direction:column;gap:2px;padding:5px 0;border-bottom:1px solid #2a3d50}
+.back-row:last-child{border-bottom:none}
+.back-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.back-val{font-size:12px;color:var(--light)}
+.targets{display:flex;gap:8px;margin-top:4px}
+.target-box{flex:1;background:rgba(76,175,130,.1);border:1px solid rgba(76,175,130,.3);border-radius:6px;padding:5px 8px;text-align:center}
+.target-box .t-label{font-size:9px;color:var(--muted);font-weight:600}
+.target-box .t-val{font-size:13px;font-weight:700;color:var(--green)}
+/* Empty state */
+.empty{display:none;text-align:center;padding:60px 20px;color:var(--muted);grid-column:1/-1}
+.empty.show{display:block}
+/* Separator */
+.section-sep{grid-column:1/-1;display:flex;align-items:center;gap:12px;margin:8px 0}
+.section-sep .sep-label{font-size:13px;font-weight:700;padding:6px 14px;border-radius:20px;white-space:nowrap}
+.section-sep .sep-line{flex:1;height:1px;background:#2a3d50}
+/* Print */
+@media print{
+  .header{display:none}
+  body{background:white;color:#111}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0}
+  .card-wrap{height:auto;page-break-inside:avoid}
+  .card-inner{transform:none!important}
+  .card-front{position:relative;backface-visibility:visible;background:#f8f9fa;border:1px solid #ccc;color:#111}
+  .card-back{display:none}
+  .flip-hint{display:none}
+  .kpi-name{color:#111}
+  .kpi-finalita{color:#555}
+  .badge-nxs,.badge-oltre{color:#111}
+}
+@media(max-width:600px){
+  .grid{grid-template-columns:1fr}
+  .header{padding:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">KPI Flashcards <span>Società Benefit</span></div>
+  <div class="controls">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Cerca KPI..." oninput="applyFilters()">
+    </div>
+    <div class="filter-group" id="companyFilters">
+      <button class="btn btn-filter active" data-company="all" onclick="setCompany(this,'all')">Tutte</button>
+      <button class="btn btn-filter" data-company="NXS" onclick="setCompany(this,'NXS')" style="--ac:var(--nxs)">NXS SRL</button>
+      <button class="btn btn-filter" data-company="OLTRE" onclick="setCompany(this,'OLTRE')" style="--ac:var(--oltre)">OLTRE SRL</button>
+    </div>
+    <div class="filter-group" id="areaFilters">
+      <button class="btn btn-filter active" data-area="all" onclick="setArea(this,'all')">Tutte le Aree</button>
+      <button class="btn btn-filter" data-area="Governance" onclick="setArea(this,'Governance')">Governance</button>
+      <button class="btn btn-filter" data-area="Lavoratori" onclick="setArea(this,'Lavoratori')">Lavoratori</button>
+      <button class="btn btn-filter" data-area="Comunità" onclick="setArea(this,'Comunità')">Comunità</button>
+      <button class="btn btn-filter" data-area="Ambiente" onclick="setArea(this,'Ambiente')">Ambiente</button>
+    </div>
+    <div class="filter-group">
+      <button class="btn btn-action" onclick="shuffleCards()">🔀 Mescola</button>
+      <button class="btn btn-action" onclick="window.print()">🖨 Stampa</button>
+    </div>
+    <div class="count-badge"><strong id="shownCount">0</strong> / <strong id="totalCount">0</strong> KPI</div>
+  </div>
+</div>
+
+<div class="grid-container">
+  <div class="grid" id="cardGrid">
+    <div class="empty" id="emptyState">Nessun KPI trovato con questi filtri.</div>
+  </div>
+</div>
+
+<script>
+const KPI_DATA = [
+// ─── NXS SRL ───────────────────────────────────────────────
+// FINALITÀ A
+{id:1,company:"NXS",finalita:"A",finalitaDesc:"Cultura manageriale: sostenibilità, etica, RSI",nome:"Ore formazione RSI/sostenibilità erogate",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Totale ore di corsi erogati con contenuto specifico su RSI, etica d'impresa o sostenibilità ambientale e ESG.",formula:"Somma ore corsi con contenuto RSI/ESG",unita:"ore/anno",frequenza:"Annuale",fonte:"CRM/Gestionale",target1:"200 ore",target3:"500 ore"},
+{id:2,company:"NXS",finalita:"A",finalitaDesc:"Cultura manageriale: sostenibilità, etica, RSI",nome:"Aziende clienti con piano ESG attivato",tipo:"Outcome",area:"Comunità",priorita:"Alta",desc:"Numero di organizzazioni clienti che hanno avviato un piano di sostenibilità o ESG dopo la formazione con NXS.",formula:"Conteggio clienti con piano ESG avviato post-formazione",unita:"n. aziende",frequenza:"Annuale",fonte:"CRM + Survey follow-up",target1:"5",target3:"20"},
+{id:3,company:"NXS",finalita:"A",finalitaDesc:"Cultura manageriale: sostenibilità, etica, RSI",nome:"Manager certificati su sostenibilità/ESG",tipo:"Outcome",area:"Lavoratori",priorita:"Media",desc:"Numero di manager che hanno conseguito una certificazione riconosciuta in ambito sostenibilità, ESG o responsabilità sociale.",formula:"Conteggio attestazioni specifiche rilasciate",unita:"n. persone",frequenza:"Annuale",fonte:"Registro attestati",target1:"10",target3:"40"},
+{id:4,company:"NXS",finalita:"A",finalitaDesc:"Cultura manageriale: sostenibilità, etica, RSI",nome:"% fatturato da corsi RSI/sostenibilità",tipo:"Output",area:"Governance",priorita:"Media",desc:"Quota percentuale del fatturato aziendale derivante da corsi con contenuto di responsabilità sociale o sostenibilità.",formula:"Ricavi formazione RSI / Ricavi totali × 100",unita:"%",frequenza:"Annuale",fonte:"Bilancio",target1:"20%",target3:"40%"},
+{id:5,company:"NXS",finalita:"A",finalitaDesc:"Cultura manageriale: sostenibilità, etica, RSI",nome:"Materiali formativi su sostenibilità prodotti",tipo:"Output",area:"Comunità",priorita:"Bassa",desc:"Numero di materiali formativi originali (guide, toolkit, dispense) prodotti da NXS su temi di sostenibilità, RSI ed etica.",formula:"Conteggio guide, toolkit, dispense create",unita:"n. materiali",frequenza:"Annuale",fonte:"Catalogo prodotti",target1:"3",target3:"10"},
+// FINALITÀ B
+{id:6,company:"NXS",finalita:"B",finalitaDesc:"Competenze trasversali per benessere organizzativo",nome:"Ore formazione soft skills/competenze trasversali",tipo:"Output",area:"Lavoratori",priorita:"Alta",desc:"Totale ore di formazione su competenze trasversali (soft skills, leadership, comunicazione interpersonale, gestione conflitti) erogate.",formula:"Somma ore corsi su leadership, comunicazione, team working",unita:"ore/anno",frequenza:"Semestrale",fonte:"CRM",target1:"500 ore",target3:"1500 ore"},
+{id:7,company:"NXS",finalita:"B",finalitaDesc:"Competenze trasversali per benessere organizzativo",nome:"Indice benessere organizzativo (pre/post percorso)",tipo:"Outcome",area:"Lavoratori",priorita:"Alta",desc:"Variazione media del punteggio di benessere organizzativo rilevato con survey standardizzata prima e dopo il percorso formativo.",formula:"Media punteggio survey benessere post - pre (scala 1-10)",unita:"delta punteggio",frequenza:"Annuale",fonte:"Survey dedicata",target1:"+1.5 pt",target3:"+3 pt"},
+{id:8,company:"NXS",finalita:"B",finalitaDesc:"Competenze trasversali per benessere organizzativo",nome:"NPS partecipanti formazione",tipo:"Output",area:"Lavoratori",priorita:"Alta",desc:"Net Promoter Score rilevato al termine di ogni corso come indicatore di soddisfazione e qualità percepita della formazione.",formula:"% Promotori - % Detrattori",unita:"score (-100/+100)",frequenza:"Per corso",fonte:"Questionario fine corso",target1:"NPS > 30",target3:"NPS > 50"},
+{id:9,company:"NXS",finalita:"B",finalitaDesc:"Competenze trasversali per benessere organizzativo",nome:"% imprese con incremento produttività post-formazione",tipo:"Outcome",area:"Lavoratori",priorita:"Media",desc:"Percentuale di organizzazioni clienti che segnalano un miglioramento della produttività misurabile a 6 mesi dalla formazione.",formula:"Aziende con aumento produttività / totale clienti × 100",unita:"%",frequenza:"Annuale",fonte:"Survey follow-up 6 mesi",target1:"20%",target3:"45%"},
+{id:10,company:"NXS",finalita:"B",finalitaDesc:"Competenze trasversali per benessere organizzativo",nome:"Percorsi per categorie svantaggiate",tipo:"Output",area:"Lavoratori",priorita:"Media",desc:"Numero di percorsi formativi progettati per lavoratori appartenenti a categorie svantaggiate (disabili, over 50, donne).",formula:"Conteggio corsi dedicati a target specifici",unita:"n. corsi",frequenza:"Annuale",fonte:"CRM",target1:"2",target3:"8"},
+// FINALITÀ C
+{id:11,company:"NXS",finalita:"C",finalitaDesc:"Organizzazioni umane e resilienti (leadership)",nome:"Percorsi leadership e team development completati",tipo:"Output",area:"Lavoratori",priorita:"Alta",desc:"Numero di percorsi strutturati di sviluppo della leadership e team development completati con esito positivo.",formula:"Conteggio percorsi completi (non singole sessioni)",unita:"n. percorsi",frequenza:"Annuale",fonte:"CRM",target1:"10",target3:"30"},
+{id:12,company:"NXS",finalita:"C",finalitaDesc:"Organizzazioni umane e resilienti (leadership)",nome:"Tasso retention dipendenti clienti post-formazione",tipo:"Outcome",area:"Lavoratori",priorita:"Alta",desc:"Riduzione del tasso di turnover nelle organizzazioni clienti rispetto al benchmark di settore, a 12 mesi dalla formazione.",formula:"Delta turnover clienti post-percorso vs benchmark settore",unita:"Δ%",frequenza:"Annuale",fonte:"Survey HR clienti",target1:"-5% turnover",target3:"-15% turnover"},
+{id:13,company:"NXS",finalita:"C",finalitaDesc:"Organizzazioni umane e resilienti (leadership)",nome:"Aziende con comunicazione interna migliorata",tipo:"Outcome",area:"Lavoratori",priorita:"Media",desc:"Numero di organizzazioni clienti che dichiarano miglioramenti strutturali nei processi di comunicazione interna post-percorso.",formula:"Conteggio aziende con miglioramento dichiarato",unita:"n. aziende",frequenza:"Annuale",fonte:"Survey follow-up",target1:"5",target3:"18"},
+{id:14,company:"NXS",finalita:"C",finalitaDesc:"Organizzazioni umane e resilienti (leadership)",nome:"Indice resilienza organizzativa (scala 1-10)",tipo:"Outcome",area:"Lavoratori",priorita:"Media",desc:"Miglioramento medio dell'indice di resilienza organizzativa misurato con strumenti validati prima e dopo il percorso.",formula:"Punteggio resilienza post - pre (tool validato)",unita:"delta punteggio",frequenza:"Annuale",fonte:"Assessment dedicato",target1:"+1 pt",target3:"+2.5 pt"},
+// FINALITÀ D
+{id:15,company:"NXS",finalita:"D",finalitaDesc:"Strategie sostenibili e innovative",nome:"Piani strategici sostenibili co-progettati",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di piani strategici orientati alla sostenibilità co-progettati con le organizzazioni clienti in consulenza.",formula:"Conteggio business model/strategie ESG elaborate",unita:"n. piani",frequenza:"Annuale",fonte:"CRM",target1:"5",target3:"20"},
+{id:16,company:"NXS",finalita:"D",finalitaDesc:"Strategie sostenibili e innovative",nome:"Aziende avviate verso modello B Corp / Soc. Benefit",tipo:"Outcome",area:"Comunità",priorita:"Alta",desc:"Numero di organizzazioni clienti che hanno formalmente avviato il percorso di trasformazione verso B Corp o Società Benefit.",formula:"Conteggio aziende con processo avviato",unita:"n. aziende",frequenza:"Annuale",fonte:"CRM",target1:"2",target3:"8"},
+{id:17,company:"NXS",finalita:"D",finalitaDesc:"Strategie sostenibili e innovative",nome:"Innovazioni di processo sostenibile implementate",tipo:"Outcome",area:"Ambiente",priorita:"Media",desc:"Numero di innovazioni di processo a basso impatto ambientale o ad alto valore sociale implementate dalle aziende clienti.",formula:"Cambiamenti operativi sostenibili avviati post-consulenza",unita:"n. innovazioni",frequenza:"Annuale",fonte:"Survey follow-up",target1:"5",target3:"20"},
+{id:18,company:"NXS",finalita:"D",finalitaDesc:"Strategie sostenibili e innovative",nome:"% clienti con impatto ambientale migliorato",tipo:"Outcome",area:"Ambiente",priorita:"Media",desc:"Percentuale di clienti che dichiarano un miglioramento misurabile del proprio impatto ambientale dopo la consulenza.",formula:"Clienti con impatto ridotto / totale × 100",unita:"%",frequenza:"Annuale",fonte:"Survey",target1:"15%",target3:"40%"},
+// FINALITÀ E
+{id:19,company:"NXS",finalita:"E",finalitaDesc:"Parità di genere e inclusione",nome:"Percorsi Diversity, Equity & Inclusion erogati",tipo:"Output",area:"Lavoratori",priorita:"Alta",desc:"Numero di percorsi formativi specificamente dedicati a temi di diversità, equità e inclusione erogati ai clienti.",formula:"Conteggio corsi/workshop DE&I completati",unita:"n. percorsi",frequenza:"Annuale",fonte:"CRM",target1:"4",target3:"15"},
+{id:20,company:"NXS",finalita:"E",finalitaDesc:"Parità di genere e inclusione",nome:"Delta % donne in leadership clienti (pre/post)",tipo:"Outcome",area:"Lavoratori",priorita:"Alta",desc:"Variazione percentuale della presenza femminile in ruoli di leadership nelle organizzazioni clienti prima e dopo la formazione.",formula:"% donne in ruoli manageriali post - pre percorso",unita:"Δ%",frequenza:"Annuale",fonte:"Survey HR clienti",target1:"+3%",target3:"+10%"},
+{id:21,company:"NXS",finalita:"E",finalitaDesc:"Parità di genere e inclusione",nome:"Policy diversity/inclusione adottate dai clienti",tipo:"Outcome",area:"Lavoratori",priorita:"Media",desc:"Numero di politiche aziendali formali su diversità, equità e inclusione adottate dalle organizzazioni clienti grazie a NXS.",formula:"Conteggio nuove policy aziendali in materia",unita:"n. policy",frequenza:"Annuale",fonte:"Survey",target1:"3",target3:"12"},
+{id:22,company:"NXS",finalita:"E",finalitaDesc:"Parità di genere e inclusione",nome:"Parità di genere interna NXS (% per livello)",tipo:"Governance",area:"Governance",priorita:"Media",desc:"Distribuzione per genere all'interno di NXS SRL per livello gerarchico, indicatore di coerenza con i valori dichiarati.",formula:"% donne per livello gerarchico interno",unita:"%",frequenza:"Annuale",fonte:"HR interno",target1:"Rilevazione baseline",target3:"50/50 per livello"},
+// FINALITÀ F
+{id:23,company:"NXS",finalita:"F",finalitaDesc:"Riduzione impatto ambientale (digitale)",nome:"% attività formative in modalità remota/digitale",tipo:"Output",area:"Ambiente",priorita:"Alta",desc:"Quota percentuale delle ore formative erogate in modalità digitale o da remoto, con riduzione diretta degli spostamenti.",formula:"Ore online / ore totali × 100",unita:"%",frequenza:"Trimestrale",fonte:"CRM",target1:"60%",target3:"80%"},
+{id:24,company:"NXS",finalita:"F",finalitaDesc:"Riduzione impatto ambientale (digitale)",nome:"CO₂ evitata grazie alla formazione digitale",tipo:"Impact",area:"Ambiente",priorita:"Media",desc:"Stima delle emissioni di CO₂ evitate grazie all'erogazione di formazione in modalità digitale (km non percorsi).",formula:"N. partecipanti remoti × km medi × fattore emissione CO₂",unita:"t CO₂eq/anno",frequenza:"Annuale",fonte:"Calcolo stimato",target1:"Baseline",target3:"-20% vs base"},
+{id:25,company:"NXS",finalita:"F",finalitaDesc:"Riduzione impatto ambientale (digitale)",nome:"% materiali formativi distribuiti in digitale",tipo:"Output",area:"Ambiente",priorita:"Media",desc:"Percentuale dei materiali didattici distribuiti in formato esclusivamente digitale, indicatore di riduzione consumo carta.",formula:"Materiali digitali / totale materiali × 100",unita:"%",frequenza:"Annuale",fonte:"Gestionale",target1:"80%",target3:"98%"},
+{id:26,company:"NXS",finalita:"F",finalitaDesc:"Riduzione impatto ambientale (digitale)",nome:"Consumi energetici sede NXS (kWh/anno)",tipo:"Output",area:"Ambiente",priorita:"Bassa",desc:"Monitoraggio dei consumi energetici totali della sede di NXS come base per la misurazione dell'impronta carbonica.",formula:"Lettura bollette energia sede e uffici",unita:"kWh/anno",frequenza:"Annuale",fonte:"Bollette energia",target1:"Rilevazione baseline",target3:"-10% annuo"},
+// FINALITÀ G
+{id:27,company:"NXS",finalita:"G",finalitaDesc:"Partnership e co-creazione valore condiviso",nome:"Partnership formali attivate (MOU, accordi)",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di accordi formali di partenariato stipulati con imprese, enti, istituzioni e organizzazioni del terzo settore.",formula:"Conteggio accordi firmati con partner strategici",unita:"n. partnership",frequenza:"Annuale",fonte:"Archivio contratti",target1:"3",target3:"12"},
+{id:28,company:"NXS",finalita:"G",finalitaDesc:"Partnership e co-creazione valore condiviso",nome:"Progetti co-creati con ETS, PA e terzo settore",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di progetti attivi realizzati in co-progettazione con enti del terzo settore, PA o imprese a impatto positivo.",formula:"Conteggio progetti attivi in collaborazione",unita:"n. progetti",frequenza:"Annuale",fonte:"CRM",target1:"2",target3:"8"},
+{id:29,company:"NXS",finalita:"G",finalitaDesc:"Partnership e co-creazione valore condiviso",nome:"Eventi territoriali aperti alla comunità",tipo:"Output",area:"Comunità",priorita:"Media",desc:"Numero di eventi, webinar o workshop aperti alla comunità locale organizzati da NXS per diffondere cultura della sostenibilità.",formula:"Conteggio iniziative pubbliche promosse da NXS",unita:"n. eventi",frequenza:"Annuale",fonte:"Calendario eventi",target1:"2",target3:"8"},
+{id:30,company:"NXS",finalita:"G",finalitaDesc:"Partnership e co-creazione valore condiviso",nome:"Valore economico co-creato con partner",tipo:"Impact",area:"Comunità",priorita:"Bassa",desc:"Stima del valore economico complessivo generato attraverso i progetti realizzati in partnership con altri attori del territorio.",formula:"Valore totale progetti realizzati in partnership",unita:"€/anno",frequenza:"Annuale",fonte:"Bilancio/stima",target1:"10.000€",target3:"50.000€"},
+// FINALITÀ H
+{id:31,company:"NXS",finalita:"H",finalitaDesc:"Formazione gratuita/agevolata PMI ed ETS",nome:"Ore formazione gratuita/agevolata a PMI e ETS",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Totale ore di formazione erogate gratuitamente o con agevolazione (< 50% tariffa) a PMI, nonprofit o ETS.",formula:"Somma ore senza corrispettivo o a prezzo ridotto",unita:"ore/anno",frequenza:"Annuale",fonte:"CRM",target1:"40 ore",target3:"150 ore"},
+{id:32,company:"NXS",finalita:"H",finalitaDesc:"Formazione gratuita/agevolata PMI ed ETS",nome:"Organizzazioni beneficiarie formazione pro bono",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di organizzazioni (PMI, ETS, nonprofit) che hanno beneficiato di formazione gratuita o fortemente agevolata da NXS.",formula:"Conteggio PMI, ETS, nonprofit beneficiari",unita:"n. organizzazioni",frequenza:"Annuale",fonte:"CRM",target1:"5",target3:"20"},
+{id:33,company:"NXS",finalita:"H",finalitaDesc:"Formazione gratuita/agevolata PMI ed ETS",nome:"Valore economico formazione donata/agevolata",tipo:"Output",area:"Comunità",priorita:"Media",desc:"Valore economico equivalente della formazione pro bono calcolato alla tariffa commerciale ordinaria.",formula:"Ore gratuite × tariffa media oraria",unita:"€/anno",frequenza:"Annuale",fonte:"Calcolo interno",target1:"4.000€",target3:"15.000€"},
+{id:34,company:"NXS",finalita:"H",finalitaDesc:"Formazione gratuita/agevolata PMI ed ETS",nome:"% fatturato destinato ad attività pro bono",tipo:"Governance",area:"Governance",priorita:"Media",desc:"Quota percentuale del fatturato annuo destinata ad attività di formazione gratuita o pro bono.",formula:"Valore pro bono / fatturato totale × 100",unita:"%",frequenza:"Annuale",fonte:"Bilancio",target1:"2%",target3:"5%"},
+// ─── OLTRE SRL ────────────────────────────────────────────────
+// FINALITÀ A
+{id:35,company:"OLTRE",finalita:"A",finalitaDesc:"Ridurre disoccupazione giovanile e di lunga durata",nome:"Giovani (15-35 anni) inseriti nel mercato del lavoro",tipo:"Impact",area:"Comunità",priorita:"Alta",desc:"Numero di giovani (15-35 anni) inseriti con contratto di lavoro entro 3 mesi dalla conclusione del percorso OLTRE.",formula:"Inserimenti confermati a 3 mesi dalla fine percorso",unita:"n. persone",frequenza:"Semestrale",fonte:"Follow-up database",target1:"30",target3:"120"},
+{id:36,company:"OLTRE",finalita:"A",finalitaDesc:"Ridurre disoccupazione giovanile e di lunga durata",nome:"Tasso occupazione a 6 mesi post-percorso",tipo:"Outcome",area:"Comunità",priorita:"Alta",desc:"Percentuale di partecipanti ai percorsi OLTRE che risultano occupati con contratto di lavoro a 6 mesi dalla conclusione.",formula:"Occupati a 6 mesi / totale partecipanti × 100",unita:"%",frequenza:"Semestrale",fonte:"Survey follow-up",target1:"40%",target3:"65%"},
+{id:37,company:"OLTRE",finalita:"A",finalitaDesc:"Ridurre disoccupazione giovanile e di lunga durata",nome:"Percorsi formativi con esito placement completati",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di percorsi formativi completi terminati con almeno un esito positivo di inserimento lavorativo.",formula:"Conteggio percorsi completati con almeno un inserimento",unita:"n. percorsi",frequenza:"Semestrale",fonte:"Gestionale",target1:"15",target3:"50"},
+{id:38,company:"OLTRE",finalita:"A",finalitaDesc:"Ridurre disoccupazione giovanile e di lunga durata",nome:"Ore formazione professionale a giovani NEET",tipo:"Output",area:"Comunità",priorita:"Media",desc:"Totale ore di formazione specificamente erogate a giovani che non studiano, non lavorano e non sono in formazione.",formula:"Ore corsi erogati a Not in Education, Employment or Training",unita:"ore/anno",frequenza:"Annuale",fonte:"CRM",target1:"1500 ore",target3:"5000 ore"},
+{id:39,company:"OLTRE",finalita:"A",finalitaDesc:"Ridurre disoccupazione giovanile e di lunga durata",nome:"Riduzione durata media disoccupazione beneficiari",tipo:"Outcome",area:"Comunità",priorita:"Media",desc:"Riduzione della durata media del periodo di disoccupazione dei beneficiari all'ingresso nei percorsi OLTRE.",formula:"Mesi medi disoccupazione all'ingresso (trend decrescente)",unita:"mesi",frequenza:"Annuale",fonte:"Schede anagrafiche",target1:"Baseline",target3:"-20%"},
+// FINALITÀ B
+{id:40,company:"OLTRE",finalita:"B",finalitaDesc:"Ridurre disuguaglianze socioeconomiche",nome:"Persone vulnerabili o a rischio esclusione formate",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di persone appartenenti a categorie vulnerabili o a rischio di esclusione sociale formate attraverso OLTRE.",formula:"Conteggio beneficiari in categorie svantaggiate",unita:"n. persone",frequenza:"Annuale",fonte:"Schede beneficiari",target1:"50",target3:"200"},
+{id:41,company:"OLTRE",finalita:"B",finalitaDesc:"Ridurre disuguaglianze socioeconomiche",nome:"% partecipanti con accesso gratuito o agevolato",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Quota percentuale dei partecipanti ai percorsi OLTRE che accedono gratuitamente o con forte agevolazione economica.",formula:"Gratuiti + agevolati / totale partecipanti × 100",unita:"%",frequenza:"Annuale",fonte:"Gestionale economico",target1:"30%",target3:"50%"},
+{id:42,company:"OLTRE",finalita:"B",finalitaDesc:"Ridurre disuguaglianze socioeconomiche",nome:"Categorie svantaggiate diverse raggiunte",tipo:"Output",area:"Comunità",priorita:"Media",desc:"Numero di tipologie diverse di categorie svantaggiate raggiunte dai percorsi OLTRE (disabili, migranti, ex-detenuti, ecc.).",formula:"Conteggio tipologie diverse di beneficiari svantaggiati",unita:"n. categorie",frequenza:"Annuale",fonte:"Schede anagrafiche",target1:"3",target3:"7"},
+{id:43,company:"OLTRE",finalita:"B",finalitaDesc:"Ridurre disuguaglianze socioeconomiche",nome:"% beneficiari con miglioramento economico a 12 mesi",tipo:"Impact",area:"Comunità",priorita:"Media",desc:"Percentuale di beneficiari vulnerabili che mostrano un miglioramento misurabile della propria situazione economica a 12 mesi.",formula:"Beneficiari con reddito aumentato / totale tracciati × 100",unita:"%",frequenza:"Annuale",fonte:"Survey follow-up 12 mesi",target1:"25%",target3:"50%"},
+// FINALITÀ C
+{id:44,company:"OLTRE",finalita:"C",finalitaDesc:"Parità di genere nel mercato del lavoro",nome:"Donne supportate per rientro post-maternità",tipo:"Output",area:"Lavoratori",priorita:"Alta",desc:"Numero di donne supportate attraverso percorsi dedicati al rientro nel mercato del lavoro dopo maternità o congedo parentale.",formula:"Conteggio percorsi specifici completati da donne post-maternità",unita:"n. donne",frequenza:"Annuale",fonte:"CRM",target1:"10",target3:"40"},
+{id:45,company:"OLTRE",finalita:"C",finalitaDesc:"Parità di genere nel mercato del lavoro",nome:"Tasso rientro lavorativo donne post-OLTRE",tipo:"Outcome",area:"Lavoratori",priorita:"Alta",desc:"Percentuale di donne rientrate nel mercato del lavoro con contratto entro 6 mesi dal percorso OLTRE.",formula:"Occupate a 6 mesi / partecipanti donne post-maternità × 100",unita:"%",frequenza:"Annuale",fonte:"Follow-up",target1:"50%",target3:"75%"},
+{id:46,company:"OLTRE",finalita:"C",finalitaDesc:"Parità di genere nel mercato del lavoro",nome:"Percorsi empowerment femminile erogati",tipo:"Output",area:"Lavoratori",priorita:"Alta",desc:"Numero di percorsi formativi dedicati all'empowerment femminile, alla leadership delle donne e allo sviluppo professionale.",formula:"Conteggio corsi dedicati alla leadership e sviluppo femminile",unita:"n. corsi",frequenza:"Annuale",fonte:"CRM",target1:"3",target3:"10"},
+{id:47,company:"OLTRE",finalita:"C",finalitaDesc:"Parità di genere nel mercato del lavoro",nome:"% donne sul totale persone formate da OLTRE",tipo:"Output",area:"Lavoratori",priorita:"Media",desc:"Quota percentuale delle donne sul totale dei partecipanti ai percorsi formativi di OLTRE, indicatore di inclusione di genere.",formula:"Donne / totale partecipanti × 100",unita:"%",frequenza:"Semestrale",fonte:"Gestionale",target1:"55%",target3:"60%"},
+{id:48,company:"OLTRE",finalita:"C",finalitaDesc:"Parità di genere nel mercato del lavoro",nome:"Gender Pay Gap interno OLTRE SRL",tipo:"Governance",area:"Governance",priorita:"Media",desc:"Differenza percentuale tra la retribuzione media degli uomini e delle donne per qualifica all'interno di OLTRE SRL.",formula:"Diff. % retribuzione media uomini/donne per qualifica",unita:"Δ%",frequenza:"Annuale",fonte:"HR interno",target1:"Baseline",target3:"GPG < 5%"},
+// FINALITÀ D
+{id:49,company:"OLTRE",finalita:"D",finalitaDesc:"Sviluppo economico territoriale",nome:"Persone formate su competenze richieste da imprese locali",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di persone formate su competenze specificamente richieste dalle imprese del territorio, da analisi dei fabbisogni locali.",formula:"Partecipanti a percorsi su fabbisogni aziendali locali",unita:"n. persone",frequenza:"Semestrale",fonte:"CRM",target1:"80",target3:"300"},
+{id:50,company:"OLTRE",finalita:"D",finalitaDesc:"Sviluppo economico territoriale",nome:"Imprese locali che assumono da percorsi OLTRE",tipo:"Outcome",area:"Comunità",priorita:"Alta",desc:"Numero di imprese del territorio che hanno assunto almeno una persona proveniente dai percorsi formativi di OLTRE.",formula:"Aziende locali con almeno un'assunzione da OLTRE",unita:"n. aziende",frequenza:"Annuale",fonte:"Follow-up HR",target1:"15",target3:"50"},
+{id:51,company:"OLTRE",finalita:"D",finalitaDesc:"Sviluppo economico territoriale",nome:"Fabbisogni formativi analizzati e trasformati in percorsi",tipo:"Output",area:"Comunità",priorita:"Media",desc:"Numero di analisi dei fabbisogni formativi aziendali completate che hanno portato alla progettazione di percorsi specifici.",formula:"Analisi fabbisogni completate",unita:"n. analisi",frequenza:"Annuale",fonte:"CRM",target1:"10",target3:"30"},
+{id:52,company:"OLTRE",finalita:"D",finalitaDesc:"Sviluppo economico territoriale",nome:"Tasso copertura vacancy locali tramite OLTRE",tipo:"Impact",area:"Comunità",priorita:"Bassa",desc:"Percentuale delle posizioni lavorative aperte nelle imprese partner del territorio coperte attraverso i percorsi OLTRE.",formula:"Posizioni aperte coperte / vacancy totali comunicate × 100",unita:"%",frequenza:"Annuale",fonte:"Survey imprese partner",target1:"5%",target3:"20%"},
+// FINALITÀ E
+{id:53,company:"OLTRE",finalita:"E",finalitaDesc:"Integrazione stranieri e migranti",nome:"Stranieri/migranti inseriti nel mercato del lavoro",tipo:"Impact",area:"Comunità",priorita:"Alta",desc:"Numero di cittadini stranieri o migranti che hanno trovato occupazione con contratto entro 3 mesi dal percorso OLTRE.",formula:"Stranieri con contratto confermato a 3 mesi",unita:"n. persone",frequenza:"Semestrale",fonte:"Follow-up database",target1:"20",target3:"80"},
+{id:54,company:"OLTRE",finalita:"E",finalitaDesc:"Integrazione stranieri e migranti",nome:"Percorsi italiano L2 e formazione linguistica",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di percorsi di italiano come seconda lingua (L2) e formazione linguistica erogati a cittadini stranieri e migranti.",formula:"Conteggio corsi di lingua italiana per stranieri",unita:"n. percorsi",frequenza:"Annuale",fonte:"CRM",target1:"5",target3:"15"},
+{id:55,company:"OLTRE",finalita:"E",finalitaDesc:"Integrazione stranieri e migranti",nome:"Tasso integrazione socio-lavorativa a 12 mesi",tipo:"Outcome",area:"Comunità",priorita:"Alta",desc:"Percentuale di stranieri/migranti integrati sia lavorativamente (contratto) sia socialmente (rete relazioni) a 12 mesi.",formula:"Stranieri con lavoro E rete sociale a 12 mesi / totale × 100",unita:"%",frequenza:"Annuale",fonte:"Survey 12 mesi",target1:"30%",target3:"55%"},
+{id:56,company:"OLTRE",finalita:"E",finalitaDesc:"Integrazione stranieri e migranti",nome:"Percorsi di mediazione culturale erogati",tipo:"Output",area:"Comunità",priorita:"Media",desc:"Numero di percorsi di mediazione e orientamento culturale per facilitare la comprensione del contesto italiano.",formula:"Conteggio percorsi di mediazione/orientamento culturale",unita:"n. percorsi",frequenza:"Annuale",fonte:"CRM",target1:"3",target3:"10"},
+// FINALITÀ F
+{id:57,company:"OLTRE",finalita:"F",finalitaDesc:"Riduzione divario digitale",nome:"Persone fragili formate su competenze digitali base",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di persone in condizione di fragilità socio-economica partecipanti a percorsi digitali gratuiti o agevolati.",formula:"Partecipanti a corsi digitali gratuiti/agevolati in target vulnerabile",unita:"n. persone",frequenza:"Semestrale",fonte:"CRM",target1:"40",target3:"150"},
+{id:58,company:"OLTRE",finalita:"F",finalitaDesc:"Riduzione divario digitale",nome:"Certificazioni digitali conseguite (ECDL, IC3...)",tipo:"Outcome",area:"Comunità",priorita:"Alta",desc:"Numero di certificazioni digitali ufficialmente riconosciute conseguite dai beneficiari dei percorsi OLTRE.",formula:"Attestati ufficiali conseguiti dai beneficiari",unita:"n. certificazioni",frequenza:"Annuale",fonte:"Registro attestati",target1:"15",target3:"60"},
+{id:59,company:"OLTRE",finalita:"F",finalitaDesc:"Riduzione divario digitale",nome:"% percorsi digitali erogati gratuitamente",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Quota percentuale dei percorsi sulle competenze digitali erogati gratuitamente o con agevolazione > 50%.",formula:"Corsi digitali gratuiti / totale corsi digitali × 100",unita:"%",frequenza:"Annuale",fonte:"Gestionale",target1:"50%",target3:"70%"},
+{id:60,company:"OLTRE",finalita:"F",finalitaDesc:"Riduzione divario digitale",nome:"Delta competenze digitali pre/post percorso",tipo:"Outcome",area:"Comunità",priorita:"Media",desc:"Miglioramento medio delle competenze digitali misurato con test standardizzato prima e dopo il percorso.",formula:"Punteggio digitale post - pre (scala 1-10, test validato)",unita:"delta punteggio",frequenza:"Per percorso",fonte:"Test ingresso/uscita",target1:"+3 pt",target3:"+4 pt"},
+// FINALITÀ G
+{id:61,company:"OLTRE",finalita:"G",finalitaDesc:"Rigenerazione aree periferiche/rurali",nome:"Comuni periferici/rurali raggiunti con formazione",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di comuni classificati come periferici o rurali dove OLTRE ha erogato almeno un'attività formativa.",formula:"Comuni con almeno 1 attività formativa nel periodo",unita:"n. comuni",frequenza:"Annuale",fonte:"Registro sedi attività",target1:"3",target3:"10"},
+{id:62,company:"OLTRE",finalita:"G",finalitaDesc:"Rigenerazione aree periferiche/rurali",nome:"Centri formativi attivati in aree periferiche",tipo:"Output",area:"Comunità",priorita:"Media",desc:"Numero di centri formativi o sportelli di orientamento attivati stabilmente in aree periferiche o rurali.",formula:"Conteggio sedi distaccate o point attivi in aree periferiche",unita:"n. sedi",frequenza:"Annuale",fonte:"Registro immobili",target1:"1",target3:"4"},
+{id:63,company:"OLTRE",finalita:"G",finalitaDesc:"Rigenerazione aree periferiche/rurali",nome:"Persone residenti in aree periferiche formate",tipo:"Output",area:"Comunità",priorita:"Alta",desc:"Numero di persone residenti in aree periferiche o rurali che hanno partecipato ai percorsi formativi di OLTRE.",formula:"Beneficiari residenti in comuni periferici/rurali",unita:"n. persone",frequenza:"Annuale",fonte:"Schede anagrafiche",target1:"30",target3:"120"},
+{id:64,company:"OLTRE",finalita:"G",finalitaDesc:"Rigenerazione aree periferiche/rurali",nome:"Leverage investimento pubblico in aree periferiche",tipo:"Impact",area:"Comunità",priorita:"Bassa",desc:"Rapporto tra i fondi pubblici attratti dalla presenza di OLTRE nelle aree periferiche e l'investimento privato aziendale.",formula:"Fondi pubblici attratti / investimento privato OLTRE",unita:"moltiplicatore",frequenza:"Annuale",fonte:"Bilancio + rendiconti pubblici",target1:"2x",target3:"5x"},
+// FINALITÀ H
+{id:65,company:"OLTRE",finalita:"H",finalitaDesc:"Professioni verdi ed economia circolare",nome:"Persone formate su green jobs e professioni verdi",tipo:"Output",area:"Ambiente",priorita:"Alta",desc:"Numero di persone formate su professioni verdi, lavori legati alla transizione ecologica o pratiche lavorative sostenibili.",formula:"Partecipanti a percorsi su lavori ambientalmente sostenibili",unita:"n. persone",frequenza:"Annuale",fonte:"CRM",target1:"20",target3:"80"},
+{id:66,company:"OLTRE",finalita:"H",finalitaDesc:"Professioni verdi ed economia circolare",nome:"Aziende green che assumono da percorsi OLTRE",tipo:"Outcome",area:"Ambiente",priorita:"Alta",desc:"Numero di aziende operanti nel settore sostenibile/economia circolare che hanno assunto personale proveniente da OLTRE.",formula:"Imprese green con almeno un'assunzione da OLTRE",unita:"n. aziende",frequenza:"Annuale",fonte:"Follow-up database",target1:"5",target3:"20"},
+{id:67,company:"OLTRE",finalita:"H",finalitaDesc:"Professioni verdi ed economia circolare",nome:"Certificazioni ambientali/green supportate",tipo:"Outcome",area:"Ambiente",priorita:"Media",desc:"Numero di certificazioni in ambito ambientale o di sostenibilità conseguite dai beneficiari dei percorsi OLTRE sulle professioni verdi.",formula:"Attestati su pratiche sostenibili conseguiti",unita:"n. certificazioni",frequenza:"Annuale",fonte:"Registro",target1:"5",target3:"25"},
+{id:68,company:"OLTRE",finalita:"H",finalitaDesc:"Professioni verdi ed economia circolare",nome:"Percorsi su economia circolare erogati",tipo:"Output",area:"Ambiente",priorita:"Media",desc:"Numero di percorsi formativi con contenuto specifico sull'economia circolare, riuso, riduzione sprechi e modelli sostenibili.",formula:"Conteggio corsi con contenuto su economia circolare",unita:"n. corsi",frequenza:"Annuale",fonte:"CRM",target1:"2",target3:"8"},
+];
+
+let activeCompany = 'all';
+let activeArea = 'all';
+let currentData = [...KPI_DATA];
+
+function tipoBadgeClass(tipo){
+  if(tipo==='Impact') return 'badge-impact';
+  if(tipo==='Outcome') return 'badge-outcome';
+  if(tipo==='Output') return 'badge-output';
+  return 'badge-governance';
+}
+function prioClass(p){return p==='Alta'?'badge-alta':p==='Media'?'badge-media':'badge-bassa';}
+
+function buildCards(data){
+  const grid = document.getElementById('cardGrid');
+  const empty = document.getElementById('emptyState');
+  // Remove all cards but keep empty div
+  Array.from(grid.querySelectorAll('.card-wrap,.section-sep')).forEach(el=>el.remove());
+  if(data.length===0){empty.classList.add('show');document.getElementById('shownCount').textContent='0';return;}
+  empty.classList.remove('show');
+
+  let lastCompany='';
+  data.forEach(k=>{
+    if(k.company!==lastCompany){
+      const sep=document.createElement('div');
+      sep.className='section-sep';
+      const col=k.company==='NXS'?'var(--nxs)':'var(--oltre)';
+      sep.innerHTML=`<div class="sep-line"></div><div class="sep-label" style="background:${col};color:${k.company==='NXS'?'#fff':'#182430'}">${k.company} SRL</div><div class="sep-line"></div>`;
+      grid.insertBefore(sep,empty);
+      lastCompany=k.company;
+    }
+    const wrap=document.createElement('div');
+    wrap.className='card-wrap';
+    wrap.dataset.company=k.company;
+    wrap.dataset.area=k.area;
+    wrap.dataset.search=(k.nome+' '+k.desc+' '+k.finalitaDesc).toLowerCase();
+    wrap.onclick=()=>wrap.classList.toggle('flipped');
+    const companyBadge=k.company==='NXS'?'badge-nxs':'badge-oltre';
+    wrap.innerHTML=`
+      <div class="card-inner">
+        <div class="card-face card-front ${k.company.toLowerCase()}">
+          <div class="badges">
+            <span class="badge ${companyBadge}">${k.company} SRL</span>
+            <span class="badge badge-area">${k.area}</span>
+            <span class="badge ${tipoBadgeClass(k.tipo)}">${k.tipo}</span>
+            <span class="badge ${prioClass(k.priorita)}">${k.priorita}</span>
+          </div>
+          <div class="kpi-name">${k.nome}</div>
+          <div class="kpi-finalita"><strong>Finalità ${k.finalita}:</strong> ${k.finalitaDesc}</div>
+          <div class="flip-hint">👆 clicca per vedere i dettagli</div>
+        </div>
+        <div class="card-face card-back">
+          <div class="back-title">${k.nome}</div>
+          <div class="back-row"><div class="back-label">Descrizione</div><div class="back-val">${k.desc}</div></div>
+          <div class="back-row"><div class="back-label">Formula / Calcolo</div><div class="back-val">${k.formula}</div></div>
+          <div class="back-row"><div class="back-label">Unità di misura</div><div class="back-val">${k.unita}</div></div>
+          <div class="back-row"><div class="back-label">Frequenza</div><div class="back-val">${k.frequenza}</div></div>
+          <div class="back-row"><div class="back-label">Fonte del dato</div><div class="back-val">${k.fonte}</div></div>
+          <div class="targets">
+            <div class="target-box"><div class="t-label">Target Anno 1</div><div class="t-val">${k.target1}</div></div>
+            <div class="target-box"><div class="t-label">Target Anno 3</div><div class="t-val">${k.target3}</div></div>
+          </div>
+        </div>
+      </div>`;
+    grid.insertBefore(wrap,empty);
+  });
+  document.getElementById('shownCount').textContent=data.length;
+}
+
+function applyFilters(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const filtered=KPI_DATA.filter(k=>{
+    const matchCompany=activeCompany==='all'||k.company===activeCompany;
+    const matchArea=activeArea==='all'||k.area===activeArea;
+    const matchSearch=!q||(k.nome+' '+k.desc+' '+k.finalitaDesc).toLowerCase().includes(q);
+    return matchCompany&&matchArea&&matchSearch;
+  });
+  buildCards(filtered);
+}
+
+function setCompany(btn,val){
+  activeCompany=val;
+  document.querySelectorAll('#companyFilters .btn-filter').forEach(b=>{
+    b.classList.remove('active','active-nxs','active-oltre');
+  });
+  if(val==='all') btn.classList.add('active');
+  else if(val==='NXS') btn.classList.add('active-nxs');
+  else btn.classList.add('active-oltre');
+  applyFilters();
+}
+
+function setArea(btn,val){
+  activeArea=val;
+  document.querySelectorAll('#areaFilters .btn-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function shuffleCards(){
+  KPI_DATA.sort(()=>Math.random()-.5);
+  applyFilters();
+}
+
+// Init
+document.getElementById('totalCount').textContent=KPI_DATA.length;
+buildCards(KPI_DATA);
+document.getElementById('shownCount').textContent=KPI_DATA.length;
+
+// Keyboard nav
+document.addEventListener('keydown',e=>{
+  const cards=Array.from(document.querySelectorAll('.card-wrap:not(.hidden)'));
+  const flipped=cards.findIndex(c=>c.classList.contains('flipped'));
+  if(e.key===' '&&flipped>=0){e.preventDefault();cards[flipped].classList.toggle('flipped');}
+  if(e.key==='ArrowRight'&&flipped>=0&&flipped<cards.length-1){cards[flipped].classList.remove('flipped');cards[flipped+1].classList.add('flipped');cards[flipped+1].scrollIntoView({behavior:'smooth',block:'center'});}
+  if(e.key==='ArrowLeft'&&flipped>0){cards[flipped].classList.remove('flipped');cards[flipped-1].classList.add('flipped');cards[flipped-1].scrollIntoView({behavior:'smooth',block:'center'});}
+});
+</script>
+</body>
+</html>
